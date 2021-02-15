@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>抓小偷</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@600&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="control">
+                <div class="start">
+                    <input type="button" value="開始遊戲" id="btn-start" />
+                </div>
+                <div class="tip">
+                    <div class="bigBar"><img src="./images/thief.png">+1</div>
+                    <div class="planeBar">
+                        <img src="./images/plane.png">
+                        <span>+10</span>
+                    </div>
+                    <div class="smallBar"><img src="./images/thief.png"><span>+15</span></div>
+                </div>
+                <div class="record">
+                    <p class="title">
+                        目前分數:
+                        <p id="text-score">0</p>
+                    </p>
+                    <p class="title">
+                        最高紀錄
+                    </p>
+                       
+                       <p class='player'> 玩家:<span id="text-highestplayer" class="playerInfo"></span></p>
+                        
+                        <p class='player'>分數:<span id="text-highestscore" class="playerInfo"></span></p>
+                    </p>
+                </div>
+            </div>
+            <div class="img">
+                <div class="thief bonus" id="thief1"></div>
+                <div class="thief bonus" id="thief2"></div>
+                <div class="thief" id="thief3"></div>
+                <div class="thief" id="thief4"></div>
+                <div class="thief" id="thief5"></div>
+                <div class="thief" id="thief6"></div>
+                <div class="thief" id="thief7"></div>
+                <div id="plane"></div>
+            </div>
+        </div>
+        <script>
+            const thiefs = document.querySelectorAll('.thief')
+            const startBtn = document.querySelector('#btn-start')
+            const textScore = document.getElementById('text-score')
+            const plane = document.getElementById('plane')
+            const highestPlayer = document.querySelector('#text-highestplayer')
+            const highestScore = document.querySelector('#text-highestscore')
+
+            let highestrecord = {
+                name: '',
+                score: 0,
+            }
+            let score = 0
+            let isInGame = false
+            let highestStorage = JSON.parse(localStorage.getItem('highestrecord'))
+            startBtn.onclick = () => {
+                isInGame = true
+                startBtn.disabled = true
+                score = 0
+                timer = setInterval(game, 1800)
+                setTimeout(end, 20000)
+                game()
+            }
+            const game = () => {
+                //消除上一輪沒按到的
+                for (let thief of thiefs) {
+                    thief.classList.remove('caught')
+                    thief.classList.remove('show')
+                }
+                plane.classList.remove('plane')
+                plane.classList.remove('caught')
+                thiefs[Math.floor(Math.random() * 7)].classList.add('show')
+                Math.random() > 0.8 ? plane.classList.add('plane') : ''
+            }
+            for (let thief of thiefs) {
+                thief.onclick = () => {
+                    if (thief.classList.contains('show')) {
+                        thief.classList.remove('show')
+                        thief.classList.add('caught')
+                        thief.classList.contains('bonus') ? (score += 15) : score++
+                        textScore.innerText = score
+                    }
+                }
+            }
+            plane.onclick = () => {
+                if (plane.classList.contains('plane')) {
+                    plane.classList.remove('plane')
+                    plane.classList.add('caught')
+                    score += 10
+                    textScore.innerText = score
+                }
+            }
+            const end = () => {
+                clearInterval(timer)
+                alert(`你的分數是${score}`)
+                startBtn.disabled = false
+                for (let thief of thiefs) {
+                    thief.classList.remove('show')
+                    thief.classList.remove('caught')
+                }
+                plane.classList.remove('plane')
+                plane.classList.remove('caught')
+                if (highestStorage === null || highestrecord.score < score) {
+                    let name = prompt('破紀錄!請輸入你的名字')
+                    highestrecord.score = score
+                    highestrecord.name = name
+                    localStorage.setItem('highestrecord', JSON.stringify(highestrecord))
+                    highestScore.innerText = score
+                    highestPlayer.innerText = name || '路人'
+                }
+            }
+        </script>
+    </body>
+</html>
